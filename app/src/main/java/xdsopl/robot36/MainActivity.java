@@ -59,6 +59,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import java.io.OutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 public class MainActivity extends AppCompatActivity {
 
 	private Bitmap scopeBitmap;
