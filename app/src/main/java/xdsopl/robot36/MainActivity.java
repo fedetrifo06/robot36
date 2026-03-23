@@ -909,7 +909,7 @@ public class MainActivity extends AppCompatActivity {
 	void storeBitmap(Bitmap bitmap) {
 		Date date = new Date();
 		String name = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(date);
-		name += ".png";
+		name += ".bmp";
 		String title = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(date);
 		ContentValues values = new ContentValues();
 		File dir;
@@ -923,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
 			try {
 				file = new File(dir, name);
 				FileOutputStream stream = new FileOutputStream(file);
-				bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+				saveBitmapAsBMP(bitmap, stream);
 				stream.close();
 			} catch (IOException e) {
 				showToast(R.string.creating_picture_file_failed);
@@ -951,7 +951,7 @@ public class MainActivity extends AppCompatActivity {
 					return;
 				}
 				FileOutputStream stream = new FileOutputStream(descriptor.getFileDescriptor());
-				bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+				saveBitmapAsBMP(bitmap, stream);
 				stream.close();
 				descriptor.close();
 			} catch (IOException e) {
@@ -969,6 +969,65 @@ public class MainActivity extends AppCompatActivity {
 		if (share != null)
 			share.setShareIntent(intent);
 		showToast(name);
+	}
+
+	void saveBitmapAsBMP(Bitmap bitmap, OutputStream stream) throws IOException {
+	    int width = bitmap.getWidth();
+	    int height = bitmap.getHeight();
+	
+	    int rowPadding = (4 - (width * 3) % 4) % 4;
+	    int imageSize = (width * 3 + rowPadding) * height;
+	    int fileSize = 54 + imageSize;
+	
+	    ByteBuffer buffer = ByteBuffer.allocate(fileSize);
+	    buffer.order(ByteOrder.LITTLE_ENDIAN);
+	
+	    // === BMP FILE HEADER (14 bytes) ===
+	    buffer.put((byte) 'B');
+	    buffer.put((byte) 'M');
+	    buffer.putInt(fileSize);
+	    buffer.putInt(0); // reserved
+	    buffer.putInt(54); // pixel data offset
+	
+	    // === DIB HEADER (40 bytes) ===
+	    buffer.putInt(40); // header size
+	    buffer.putInt(width);
+	    buffer.putInt(height);
+	    buffer.putShort((short) 1); // color planes
+	    buffer.putShort((short) 24); // bits per pixel
+	    buffer.putInt(0); // compression (0 = none)
+	    buffer.putInt(imageSize);
+	    buffer.putInt(2835); // horizontal resolution (72 DPI)
+	    buffer.putInt(2835); // vertical resolution
+	    buffer.putInt(0); // colors in palette
+	    buffer.putInt(0); // important colors
+	
+	    // === PIXEL DATA ===
+	    int[] pixels = new int[width];
+	    byte[] padding = new byte[rowPadding];
+	
+	    // BMP stores pixels bottom -> top
+	    for (int y = height - 1; y >= 0; y--) {
+	        bitmap.getPixels(pixels, 0, width, 0, y, width, 1);
+	
+	        for (int x = 0; x < width; x++) {
+	            int pixel = pixels[x];
+	
+	            byte r = (byte) ((pixel >> 16) & 0xFF);
+	            byte g = (byte) ((pixel >> 8) & 0xFF);
+	            byte b = (byte) (pixel & 0xFF);
+	
+	            // BMP uses BGR order
+	            buffer.put(b);
+	            buffer.put(g);
+	            buffer.put(r);
+	        }
+	
+	        // row padding (must be multiple of 4 bytes)
+	        buffer.put(padding);
+	    }
+	
+	    stream.write(buffer.array());
 	}
 
 	private void showToast(String message) {
