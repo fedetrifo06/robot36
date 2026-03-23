@@ -941,7 +941,7 @@ public class MainActivity extends AppCompatActivity {
 			values.put(MediaStore.Images.Media.IS_PENDING, 1);
 		}
 		values.put(MediaStore.Images.ImageColumns.TITLE, title);
-		values.put(MediaStore.Images.ImageColumns.MIME_TYPE, "image/png");
+		values.put(MediaStore.Images.ImageColumns.MIME_TYPE, "image/bmp");
 		ContentResolver resolver = getContentResolver();
 		Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 		if (uri == null) {
@@ -969,7 +969,7 @@ public class MainActivity extends AppCompatActivity {
 		}
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.putExtra(Intent.EXTRA_STREAM, uri);
-		intent.setType("image/png");
+		intent.setType("image/bmp");
 		ShareActionProvider share = (ShareActionProvider) MenuItemCompat.getActionProvider(menu.findItem(R.id.menu_item_share));
 		if (share != null)
 			share.setShareIntent(intent);
