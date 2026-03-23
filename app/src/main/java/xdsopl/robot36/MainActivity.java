@@ -923,7 +923,7 @@ public class MainActivity extends AppCompatActivity {
 			try {
 				file = new File(dir, name);
 				FileOutputStream stream = new FileOutputStream(file);
-				bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+				bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 				stream.close();
 			} catch (IOException e) {
 				showToast(R.string.creating_picture_file_failed);
@@ -951,7 +951,7 @@ public class MainActivity extends AppCompatActivity {
 					return;
 				}
 				FileOutputStream stream = new FileOutputStream(descriptor.getFileDescriptor());
-				bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+				bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 				stream.close();
 				descriptor.close();
 			} catch (IOException e) {
